@@ -1,139 +1,3 @@
-// import { useState, useEffect } from 'react'
-// import { Link, Navigate } from 'react-router-dom'
-// import { useAuth } from '../context/AuthContext'
-// import Navbar from '../components/Navbar'
-// import Footer from '../components/Footer'
-// import Spinner from '../components/Spinner'
-// import { getUserApplications } from '../services/api'
-
-// const isRole = (user, role) => user?.role?.toLowerCase() === role.toLowerCase()
-
-// const STATUS_STYLES = {
-//   APPLIED:    { bg: 'rgba(108,99,255,0.12)', color: '#a29bfe', border: 'rgba(108,99,255,0.3)', label: 'Applied' },
-//   REVIEWING:  { bg: 'rgba(247,183,49,0.12)', color: '#f7b731', border: 'rgba(247,183,49,0.3)', label: 'Reviewing' },
-//   SHORTLISTED:{ bg: 'rgba(67,233,123,0.12)', color: '#43e97b', border: 'rgba(67,233,123,0.3)', label: 'Shortlisted' },
-//   REJECTED:   { bg: 'rgba(255,101,132,0.1)', color: '#ff6584', border: 'rgba(255,101,132,0.3)', label: 'Rejected' },
-// }
-
-// export default function MyApplications() {
-//   const { user } = useAuth()
-//   const [applications, setApplications] = useState([])
-//   const [loading, setLoading] = useState(true)
-//   const [error, setError] = useState('')
-
-//   if (!user) return <Navigate to="/login" replace />
-//   if (!isRole(user, 'jobseeker')) return <Navigate to="/dashboard" replace />
-
-//   useEffect(() => {
-//     getUserApplications(user.userId)
-//       .then(res => setApplications(Array.isArray(res.data) ? res.data : []))
-//       .catch(() => setError('Failed to load applications. Is the backend running?'))
-//       .finally(() => setLoading(false))
-//   }, [user.userId])
-
-//   const stats = {
-//     total: applications.length,
-//     applied: applications.filter(a => a.status === 'APPLIED').length,
-//   }
-
-//   return (
-//     <div className="app-wrapper">
-//       <Navbar />
-//       <main className="page-content">
-//         <div className="container">
-
-//           <div className="page-header fade-in">
-//             <span className="section-label">Job Seeker</span>
-//             <h1>My Applications</h1>
-//             <p>Track the status of all your job applications</p>
-//           </div>
-
-//           {/* Stats row */}
-//           {!loading && applications.length > 0 && (
-//             <div className="stats-row fade-in" style={{ marginBottom: '36px' }}>
-//               <div className="stat-pill">
-//                 <i className="bi bi-briefcase-fill" style={{ color: 'var(--accent)' }}></i>
-//                 <span><strong>{stats.total}</strong> Total Applied</span>
-//               </div>
-//               <div className="stat-pill">
-//                 <i className="bi bi-hourglass-split" style={{ color: '#f7b731' }}></i>
-//                 <span><strong>{stats.applied}</strong> Pending Review</span>
-//               </div>
-//             </div>
-//           )}
-
-//           {loading ? (
-//             <Spinner message="Loading your applications..." />
-//           ) : error ? (
-//             <div className="alert-jp">{error}</div>
-//           ) : applications.length === 0 ? (
-//             <div className="empty-state fade-in">
-//               <div className="empty-icon">
-//                 <i className="bi bi-briefcase" style={{ fontSize: '3rem', opacity: 0.2 }}></i>
-//               </div>
-//               <h3>No applications yet</h3>
-//               <p>You haven't applied to any jobs. Start browsing open positions!</p>
-//               <Link to="/jobs" className="btn-primary-jp" style={{ marginTop: '20px', justifyContent: 'center' }}>
-//                 <i className="bi bi-search"></i> Browse Jobs
-//               </Link>
-//             </div>
-//           ) : (
-//             <div className="row g-4">
-//               {applications.map((app, i) => {
-//                 const style = STATUS_STYLES[app.status] || STATUS_STYLES.APPLIED
-//                 return (
-//                   <div key={app.applicationId} className={`col-md-6 fade-in fade-in-delay-${Math.min(i + 1, 4)}`}>
-//                     <div className="application-card">
-//                       <div className="application-card-top">
-//                         <div>
-//                           <h5 className="application-title">{app.job?.title || 'Job Title'}</h5>
-//                           <div className="application-company">{app.job?.companyName}</div>
-//                         </div>
-//                         <span className="status-badge" style={{
-//                           background: style.bg, color: style.color,
-//                           border: `1px solid ${style.border}`,
-//                         }}>
-//                           {style.label}
-//                         </span>
-//                       </div>
-
-//                       <div className="application-meta">
-//                         {app.job?.location && (
-//                           <span className="job-tag">
-//                             <i className="bi bi-geo-alt"></i> {app.job.location}
-//                           </span>
-//                         )}
-//                         <span className="job-tag">
-//                           <i className="bi bi-calendar3"></i>
-//                           Applied {new Date(app.applyDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-//                         </span>
-//                         {app.job?.salary && (
-//                           <span className="job-tag" style={{ color: 'var(--accent-3)', fontWeight: 600 }}>
-//                             <i className="bi bi-currency-rupee"></i>
-//                             {Number(app.job.salary).toLocaleString()} / yr
-//                           </span>
-//                         )}
-//                       </div>
-
-//                       <Link to={`/jobs/${app.job?.jobId}`} className="btn-view-job" style={{ marginTop: '16px' }}>
-//                         View Job <i className="bi bi-arrow-right"></i>
-//                       </Link>
-//                     </div>
-//                   </div>
-//                 )
-//               })}
-//             </div>
-//           )}
-
-//         </div>
-//       </main>
-//       <Footer />
-//     </div>
-//   )
-// }
-
-
-
 import { useState, useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -144,7 +8,6 @@ import { getUserApplications } from '../services/api'
 
 const isRole = (user, role) => user?.role?.toLowerCase() === role.toLowerCase()
 
-// Timeline steps in order
 const TIMELINE_STEPS = [
   { status: 'APPLIED',             label: 'Applied',             icon: 'bi-send-fill',             color: '#a29bfe' },
   { status: 'RESUME_VIEWED',       label: 'Resume Viewed',       icon: 'bi-eye-fill',              color: '#f7b731' },
@@ -169,7 +32,7 @@ const STATUS_CONFIG = {
 function getStepIndex(status) {
   const idx = TIMELINE_STEPS.findIndex(s => s.status === status)
   if (idx !== -1) return idx
-  if (status === 'HIRED' || status === 'REJECTED') return TIMELINE_STEPS.length // past last step
+  if (status === 'HIRED' || status === 'REJECTED') return TIMELINE_STEPS.length 
   return 0
 }
 

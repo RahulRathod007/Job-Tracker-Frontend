@@ -1,90 +1,3 @@
-// import { Link } from 'react-router-dom'
-
-// // Deterministic color per company name
-// function getCardAccent(str = '') {
-//   const colors = ['#6c63ff', '#ff6584', '#43e97b', '#f7b731', '#a29bfe', '#fd79a8']
-//   let hash = 0
-//   for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash)
-//   return colors[Math.abs(hash) % colors.length]
-// }
-
-// export default function JobCard({ job }) {
-//   const accent = getCardAccent(job.companyName)
-//   const initials = (job.companyName || 'JP')
-//     .split(' ')
-//     .map(w => w[0])
-//     .join('')
-//     .slice(0, 2)
-//     .toUpperCase()
-
-//   const formattedSalary = job.salary
-//     ? `₹${Number(job.salary).toLocaleString()} / month`
-//     : 'Not disclosed'
-
-//   const postedDate = job.postedDate
-//     ? new Date(job.postedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-//     : ''
-
-//   return (
-//     <div className="job-card fade-in">
-//       <div className="job-card-body">
-//         <div
-//           className="company-logo"
-//           style={{ background: `linear-gradient(135deg, ${accent}aa, ${accent}44)`, border: `1px solid ${accent}55` }}
-//         >
-//           {initials}
-//         </div>
-
-//         <div className="job-title">{job.title}</div>
-//         <div className="job-company">{job.companyName}</div>
-
-//         <div className="job-meta">
-//           {job.location && (
-//             <span className="job-tag">
-//               <i className="bi bi-geo-alt"></i>
-//               {job.location}
-//             </span>
-//           )}
-//           {postedDate && (
-//             <span className="job-tag">
-//               <i className="bi bi-calendar3"></i>
-//               {postedDate}
-//             </span>
-//           )}
-//         </div>
-
-//         <div className="job-salary" style={{ color: accent }}>
-//           {formattedSalary}
-//         </div>
-
-//         {job.description && (
-//           <p style={{
-//             fontSize: '0.83rem',
-//             color: 'var(--text-muted)',
-//             marginBottom: '20px',
-//             lineHeight: 1.6,
-//             overflow: 'hidden',
-//             display: '-webkit-box',
-//             WebkitLineClamp: 2,
-//             WebkitBoxOrient: 'vertical',
-//           }}>
-//             {job.description}
-//           </p>
-//         )}
-
-//         <Link
-//           to={`/jobs/${job.jobId}`}
-//           className="btn-view-job"
-//           style={{ borderColor: `${accent}55`, color: accent }}
-//         >
-//           View Details <i className="bi bi-arrow-right"></i>
-//         </Link>
-//       </div>
-//     </div>
-//   )
-// }
-
-
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -108,7 +21,7 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
     .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
   const formattedSalary = job.salary
-    ? `₹${Number(job.salary).toLocaleString()} / yr`
+    ? `₹${Number(job.salary).toLocaleString()} / LPA`
     : 'Not disclosed'
 
   const postedDate = job.postedDate
