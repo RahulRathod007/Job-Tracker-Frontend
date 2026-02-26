@@ -50,14 +50,11 @@ const API = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── AUTH ──────────────────────────────────────────────
 export const register    = (data)   => API.post('/auth/register', data)
 export const login       = (data)   => API.post('/auth/login', data)
 
-// ── USERS ─────────────────────────────────────────────
 export const getAllUsers  = ()       => API.get('/users/all')
 
-// ── JOBS ──────────────────────────────────────────────
 export const getAllJobs        = ()                            => API.get('/jobs/all')
 export const searchByLocation  = (loc)                        => API.get(`/jobs/search/${encodeURIComponent(loc)}`)
 export const filterJobs        = (keyword = '', jobType = '') => API.get(`/jobs/filter?keyword=${encodeURIComponent(keyword)}&jobType=${encodeURIComponent(jobType)}`)  // NEW
@@ -65,13 +62,11 @@ export const postJob           = (job, id)                    => API.post(`/jobs
 export const updateJob         = (id, job)                    => API.put(`/jobs/update/${id}`, job)
 export const deleteJob         = (id)                         => API.delete(`/jobs/delete/${id}`)
 
-// ── APPLICATIONS ──────────────────────────────────────
 export const applyJob                = (jobId, userId)         => API.post(`/applications/apply/${jobId}/${userId}`)
 export const getUserApplications     = (userId)                => API.get(`/applications/user/${userId}`)
 export const getJobApplications      = (jobId)                 => API.get(`/applications/job/${jobId}`)
 export const updateApplicationStatus = (applicationId, status) => API.put(`/applications/update/${applicationId}`, { status })
 
-// ── FILE UPLOADS ──────────────────────────────────────
 export const uploadProfilePic = (userId, formData) =>
   axios.post(`${API_BASE}/api/files/upload/profile/${userId}`, formData)
 

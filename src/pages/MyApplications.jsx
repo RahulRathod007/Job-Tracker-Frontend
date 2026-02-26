@@ -271,7 +271,7 @@ export default function MyApplications() {
                         {app.job?.salary && (
                           <span className="job-tag" style={{ color: 'var(--accent-3)', fontWeight: 600 }}>
                             <i className="bi bi-currency-rupee" />
-                            {Number(app.job.salary).toLocaleString()} / yr
+                            {Number(app.job.salary).toLocaleString()}  LPA
                           </span>
                         )}
                       </div>

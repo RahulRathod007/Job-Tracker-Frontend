@@ -556,7 +556,7 @@ p { color: var(--text-secondary); }
 }
 
 .job-salary {
-  font-family: 'Syne', sans-serif;
+  font-family: sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--accent-3);
@@ -565,6 +565,7 @@ p { color: var(--text-secondary); }
 
 .btn-view-job {
   background: rgba(108,99,255,0.1);
+  width: 100%;
   color: var(--accent);
   border: 1px solid var(--border-accent);
   padding: 10px 10px;
@@ -2353,4 +2354,27 @@ select.form-control-jp option {
   color: var(--accent-3);
   font-weight: 500;
   margin-bottom: 20px;
+}
+
+
+/* ========================================
+   APPLICATION DEADLINE BADGE (NEW)
+   ======================================== */
+.job-deadline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.job-deadline-expired {
+  background: rgba(255,101,132,0.08);
+  border-color: rgba(255,101,132,0.25);
+  color: #ff6584;
 }

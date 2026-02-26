@@ -1,4 +1,4 @@
-// import { useState } from 'react'
+// import { useState, useEffect } from 'react'
 // import { Link, useNavigate } from 'react-router-dom'
 // import { useAuth } from '../context/AuthContext'
 // import { applyJob } from '../services/api'
@@ -12,16 +12,37 @@
 
 // const isRole = (user, role) => user?.role?.toLowerCase() === role.toLowerCase()
 
+// // Job type badge colors
+// const JOB_TYPE_STYLE = {
+//   'Full Time':  { bg: 'rgba(108,99,255,0.15)', color: '#a29bfe', border: 'rgba(108,99,255,0.35)' },
+//   'Part Time':  { bg: 'rgba(247,183,49,0.15)',  color: '#f7b731', border: 'rgba(247,183,49,0.35)' },
+//   'Internship': { bg: 'rgba(255,101,132,0.15)', color: '#ff6584', border: 'rgba(255,101,132,0.35)' },
+//   'Remote':     { bg: 'rgba(67,233,123,0.15)',  color: '#43e97b', border: 'rgba(67,233,123,0.35)' },
+//   'Contract':   { bg: 'rgba(0,210,255,0.15)',   color: '#00d2ff', border: 'rgba(0,210,255,0.35)'  },
+// }
+
+// // Saved jobs helpers — stored in localStorage
+// const SAVE_KEY = 'jp_saved_jobs'
+// function getSaved() {
+//   try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '[]') } catch { return [] }
+// }
+// function toggleSave(jobId) {
+//   const saved = getSaved()
+//   const next = saved.includes(jobId) ? saved.filter(id => id !== jobId) : [...saved, jobId]
+//   localStorage.setItem(SAVE_KEY, JSON.stringify(next))
+//   return next.includes(jobId)
+// }
+
 // export default function JobCard({ job, appliedJobIds = [], onApplied }) {
 //   const { user } = useAuth()
-//   const navigate = useNavigate()
-//   const accent = getCardAccent(job.companyName)
+//   const navigate  = useNavigate()
+//   const accent    = getCardAccent(job.companyName)
 
 //   const initials = (job.companyName || 'JP')
 //     .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
 //   const formattedSalary = job.salary
-//     ? `₹${Number(job.salary).toLocaleString()} / LPA`
+//     ? `₹${Number(job.salary).toLocaleString()} / yr`
 //     : 'Not disclosed'
 
 //   const postedDate = job.postedDate
@@ -29,18 +50,20 @@
 //     : ''
 
 //   const alreadyApplied = appliedJobIds.includes(job.jobId)
-//   const [applying, setApplying] = useState(false)
+//   const [applying, setApplying]     = useState(false)
 //   const [justApplied, setJustApplied] = useState(false)
-//   const [applyErr, setApplyErr] = useState('')
+//   const [applyErr, setApplyErr]     = useState('')
+
+//   // Bookmark state
+//   const [saved, setSaved] = useState(() => getSaved().includes(job.jobId))
+//   const [saveAnim, setSaveAnim] = useState(false)
 
 //   const isJobSeeker = user && isRole(user, 'jobseeker')
-//   const isEmployer  = user && isRole(user, 'employer')
 
 //   const handleQuickApply = async (e) => {
 //     e.preventDefault()
 //     if (!user) { navigate('/login'); return }
 //     if (!isJobSeeker) return
-
 //     setApplying(true)
 //     setApplyErr('')
 //     try {
@@ -61,26 +84,64 @@
 //     }
 //   }
 
+//   const handleBookmark = (e) => {
+//     e.preventDefault()
+//     e.stopPropagation()
+//     const nowSaved = toggleSave(job.jobId)
+//     setSaved(nowSaved)
+//     setSaveAnim(true)
+//     setTimeout(() => setSaveAnim(false), 400)
+//     // dispatch storage event so SavedJobs page refreshes in same tab
+//     window.dispatchEvent(new Event('savedJobsChanged'))
+//   }
+
 //   const applied = alreadyApplied || justApplied
+//   const typeStyle = JOB_TYPE_STYLE[job.jobType] || null
 
 //   return (
-//     <div className="job-card fade-in" style={{ borderColor: applied ? 'rgba(67,233,123,0.3)' : '' }}>
+//     <div
+//       className="job-card fade-in"
+//       style={{ borderColor: applied ? 'rgba(67,233,123,0.3)' : '' }}
+//     >
 //       <div className="job-card-body">
-//         {/* Company logo */}
-//         <div
-//           className="company-logo"
-//           style={{
-//             background: `linear-gradient(135deg, ${accent}aa, ${accent}44)`,
-//             border: `1px solid ${accent}55`,
-//           }}
-//         >
-//           {initials}
+
+//         {/* Top row: logo + bookmark */}
+//         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px' }}>
+//           <div
+//             className="company-logo"
+//             style={{
+//               background: `linear-gradient(135deg, ${accent}aa, ${accent}44)`,
+//               border: `1px solid ${accent}55`,
+//               margin: 0,
+//             }}
+//           >
+//             {initials}
+//           </div>
+
+//           {/* Bookmark button — visible for everyone */}
+//           <button
+//             onClick={handleBookmark}
+//             className={`job-bookmark-btn ${saved ? 'job-bookmark-btn-saved' : ''} ${saveAnim ? 'job-bookmark-pop' : ''}`}
+//             title={saved ? 'Remove bookmark' : 'Save job'}
+//           >
+//             <i className={`bi ${saved ? 'bi-bookmark-fill' : 'bi-bookmark'}`} />
+//           </button>
 //         </div>
 
 //         <div className="job-title">{job.title}</div>
 //         <div className="job-company">{job.companyName}</div>
 
-//         <div className="job-meta">
+//         {/* Job Type badge — NEW */}
+//         {job.jobType && typeStyle && (
+//           <span
+//             className="job-type-badge"
+//             style={{ background: typeStyle.bg, color: typeStyle.color, borderColor: typeStyle.border }}
+//           >
+//             {job.jobType}
+//           </span>
+//         )}
+
+//         <div className="job-meta" style={{ marginTop: '12px' }}>
 //           {job.location && (
 //             <span className="job-tag">
 //               <i className="bi bi-geo-alt" /> {job.location}
@@ -105,6 +166,13 @@
 //           </div>
 //         )}
 
+//         {/* Applied badge */}
+//         {/* {applied && (
+//           <div className="job-applied-strip">
+//             <i className="bi bi-check-circle-fill" /> Applied
+//           </div>
+//         )} */}
+
 //         {/* Action buttons */}
 //         <div className="job-card-actions">
 //           <Link
@@ -115,34 +183,29 @@
 //             Details <i className="bi bi-arrow-right" />
 //           </Link>
 
-//           {/* Job seeker: Quick Apply or Applied badge
-//           {isJobSeeker && (
-//             applied ? (
-//               <span className="job-applied-badge">
-//                 <i className="bi bi-check-circle-fill" /> Applied
-//               </span>
-//             ) : (
-//               <button
-//                 className="btn-quick-apply"
-//                 onClick={handleQuickApply}
-//                 disabled={applying}
-//                 style={{ background: accent }}
-//               >
-//                 {applying
-//                   ? <><span className="btn-spinner" /> Applying...</>
-//                   : <><i className="bi bi-send-fill" /> Apply</>
-//                 }
-//               </button>
-//             )
+//           {/* {isJobSeeker && !applied && (
+//             <button
+//               className="btn-quick-apply"
+//               onClick={handleQuickApply}
+//               disabled={applying}
+//               style={{ background: accent }}
+//             >
+//               {applying
+//                 ? <><span className="btn-spinner" /> Applying...</>
+//                 : <><i className="bi bi-send-fill" /> Apply</>
+//               }
+//             </button>
 //           )} */}
 //         </div>
+
 //       </div>
 //     </div>
 //   )
 // }
 
 
-import { useState, useEffect } from 'react'
+
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { applyJob } from '../services/api'
@@ -177,6 +240,20 @@ function toggleSave(jobId) {
   return next.includes(jobId)
 }
 
+// Deadline helper — always carries urgency label + actual date
+function getDeadlineInfo(deadline) {
+  if (!deadline) return null
+  const days    = Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24))
+  const dateStr = new Date(deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+
+  if (days < 0)   return { urgency: 'Applications closed', date: dateStr, icon: 'bi-calendar-x-fill',  color: '#ff6584', bg: 'rgba(255,101,132,0.08)', border: 'rgba(255,101,132,0.25)', expired: true }
+  if (days === 0) return { urgency: 'Closes today!',        date: dateStr, icon: 'bi-hourglass-bottom', color: '#ff6584', bg: 'rgba(255,101,132,0.1)',  border: 'rgba(255,101,132,0.35)' }
+  if (days === 1) return { urgency: 'Closes tomorrow',      date: dateStr, icon: 'bi-hourglass-split',  color: '#ff6584', bg: 'rgba(255,101,132,0.08)', border: 'rgba(255,101,132,0.3)'  }
+  if (days <= 3)  return { urgency: `${days} days left`,    date: dateStr, icon: 'bi-hourglass-split',  color: '#f7b731', bg: 'rgba(247,183,49,0.08)',  border: 'rgba(247,183,49,0.3)'   }
+  if (days <= 7)  return { urgency: `${days} days left`,    date: dateStr, icon: 'bi-hourglass-split',  color: '#f7b731', bg: 'rgba(247,183,49,0.06)',  border: 'rgba(247,183,49,0.25)'  }
+  return                 { urgency: null,                   date: dateStr, icon: 'bi-calendar-check',   color: '#43e97b', bg: 'rgba(67,233,123,0.07)',  border: 'rgba(67,233,123,0.25)'  }
+}
+
 export default function JobCard({ job, appliedJobIds = [], onApplied }) {
   const { user } = useAuth()
   const navigate  = useNavigate()
@@ -186,7 +263,7 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
     .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
   const formattedSalary = job.salary
-    ? `₹${Number(job.salary).toLocaleString()} / yr`
+    ? `₹${Number(job.salary).toLocaleString()} LPA`
     : 'Not disclosed'
 
   const postedDate = job.postedDate
@@ -194,12 +271,12 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
     : ''
 
   const alreadyApplied = appliedJobIds.includes(job.jobId)
-  const [applying, setApplying]     = useState(false)
+  const [applying, setApplying]       = useState(false)
   const [justApplied, setJustApplied] = useState(false)
-  const [applyErr, setApplyErr]     = useState('')
+  const [applyErr, setApplyErr]       = useState('')
 
   // Bookmark state
-  const [saved, setSaved] = useState(() => getSaved().includes(job.jobId))
+  const [saved, setSaved]       = useState(() => getSaved().includes(job.jobId))
   const [saveAnim, setSaveAnim] = useState(false)
 
   const isJobSeeker = user && isRole(user, 'jobseeker')
@@ -235,12 +312,12 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
     setSaved(nowSaved)
     setSaveAnim(true)
     setTimeout(() => setSaveAnim(false), 400)
-    // dispatch storage event so SavedJobs page refreshes in same tab
     window.dispatchEvent(new Event('savedJobsChanged'))
   }
 
-  const applied = alreadyApplied || justApplied
-  const typeStyle = JOB_TYPE_STYLE[job.jobType] || null
+  const applied    = alreadyApplied || justApplied
+  const typeStyle  = JOB_TYPE_STYLE[job.jobType] || null
+  const deadlineInfo = getDeadlineInfo(job.deadline)
 
   return (
     <div
@@ -262,7 +339,7 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
             {initials}
           </div>
 
-          {/* Bookmark button — visible for everyone */}
+          {/* Bookmark button */}
           <button
             onClick={handleBookmark}
             className={`job-bookmark-btn ${saved ? 'job-bookmark-btn-saved' : ''} ${saveAnim ? 'job-bookmark-pop' : ''}`}
@@ -275,7 +352,7 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
         <div className="job-title">{job.title}</div>
         <div className="job-company">{job.companyName}</div>
 
-        {/* Job Type badge — NEW */}
+        {/* Job Type badge */}
         {job.jobType && typeStyle && (
           <span
             className="job-type-badge"
@@ -285,6 +362,7 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
           </span>
         )}
 
+        {/* Meta: location + posted date + deadline as inline tag */}
         <div className="job-meta" style={{ marginTop: '12px' }}>
           {job.location && (
             <span className="job-tag">
@@ -294,6 +372,23 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
           {postedDate && (
             <span className="job-tag">
               <i className="bi bi-calendar3" /> {postedDate}
+            </span>
+          )}
+          {deadlineInfo && (
+            <span
+              className="job-tag"
+              style={{
+                color:       deadlineInfo.color,
+                background:  deadlineInfo.bg,
+                borderColor: deadlineInfo.border,
+                fontWeight:  600,
+              }}
+            >
+              <i className={`bi ${deadlineInfo.icon}`} />
+              {deadlineInfo.urgency
+                ? <>{deadlineInfo.urgency}&nbsp;&middot;&nbsp;{deadlineInfo.date}</>
+                : <>Deadline: {deadlineInfo.date}</>
+              }
             </span>
           )}
         </div>
@@ -310,8 +405,15 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
           </div>
         )}
 
-        {/* Applied badge */}
-        {/* {applied && (
+        {/* Applications Closed strip — shown when deadline has passed */}
+        {deadlineInfo?.expired && (
+          <div className="job-closed-strip">
+            <i className="bi bi-lock-fill" /> Applications Closed
+          </div>
+        )}
+
+        {/* Applied strip — shown after applying */}
+        {/* {applied && !deadlineInfo?.expired && (
           <div className="job-applied-strip">
             <i className="bi bi-check-circle-fill" /> Applied
           </div>
@@ -327,7 +429,8 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
             Details <i className="bi bi-arrow-right" />
           </Link>
 
-          {/* {isJobSeeker && !applied && (
+          {/* Quick Apply — only shown if not expired and not already applied */}
+          {/* {isJobSeeker && !applied && !deadlineInfo?.expired && (
             <button
               className="btn-quick-apply"
               onClick={handleQuickApply}

@@ -34,7 +34,7 @@ export default function Footer() {
               <div className="footer-brand">
                 <div className="footer-logo mb-3">
                   <span className="logo-dot"></span>
-                  Job<span>Tracker</span>
+                  Job<span>Portal</span>
                 </div>
                 <p className="footer-tagline">
                   Connecting ambitious professionals with companies building the future.
