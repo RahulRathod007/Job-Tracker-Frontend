@@ -1,31 +1,33 @@
-import { useState, useEffect } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Spinner from '../components/Spinner'
 import { getUserApplications } from '../services/api'
+import { lazy } from 'react'
 
 const isRole = (user, role) => user?.role?.toLowerCase() === role.toLowerCase()
 
+// Timeline steps in order
 const TIMELINE_STEPS = [
-  { status: 'APPLIED',             label: 'Applied',             icon: 'bi-send-fill',             color: '#a29bfe' },
-  { status: 'RESUME_VIEWED',       label: 'Resume Viewed',       icon: 'bi-eye-fill',              color: '#f7b731' },
-  { status: 'SHORTLISTED',         label: 'Shortlisted',         icon: 'bi-star-fill',             color: '#43e97b' },
+  { status: 'APPLIED',             label: 'Applied',             icon: 'bi-send-fill',             color: '#4c469e' },
+  { status: 'RESUME_VIEWED',       label: 'Resume Viewed',       icon: 'bi-eye-fill',              color: '#765818' },
+  { status: 'SHORTLISTED',         label: 'Shortlisted',         icon: 'bi-star-fill',             color: '#0e5e29' },
   { status: 'INTERVIEW_SCHEDULED', label: 'Interview Scheduled', icon: 'bi-calendar-check-fill',   color: '#00d2ff' },
 ]
 
 const FINAL_STEPS = {
-  HIRED:    { label: 'Hired 🎉',   icon: 'bi-trophy-fill',   color: '#43e97b' },
-  REJECTED: { label: 'Rejected',   icon: 'bi-x-circle-fill', color: '#ff6584' },
+  HIRED:    { label: 'Hired',   icon: 'bi-trophy-fill',   color: '#0d5f28' },
+  REJECTED: { label: 'Rejected',   icon: 'bi-x-circle-fill', color: '#6c192a' },
 }
 
 const STATUS_CONFIG = {
-  APPLIED:             { label: 'Applied',             bg: 'rgba(108,99,255,0.12)', color: '#a29bfe', border: 'rgba(108,99,255,0.3)' },
+  APPLIED:             { label: 'Applied',             bg: 'rgba(108,99,255,0.12)', color: '#574de4', border: 'rgba(108,99,255,0.3)' },
   RESUME_VIEWED:       { label: 'Resume Viewed',       bg: 'rgba(247,183,49,0.12)', color: '#f7b731', border: 'rgba(247,183,49,0.3)' },
   SHORTLISTED:         { label: 'Shortlisted',         bg: 'rgba(67,233,123,0.12)', color: '#43e97b', border: 'rgba(67,233,123,0.3)' },
   INTERVIEW_SCHEDULED: { label: 'Interview Scheduled', bg: 'rgba(0,210,255,0.12)',  color: '#00d2ff', border: 'rgba(0,210,255,0.3)'  },
-  HIRED:               { label: 'Hired 🎉',            bg: 'rgba(67,233,123,0.15)', color: '#43e97b', border: 'rgba(67,233,123,0.4)' },
+  HIRED:               { label: 'Hired ',              bg: 'rgba(67,233,123,0.15)', color: '#43e97b', border: 'rgba(67,233,123,0.4)' },
   REJECTED:            { label: 'Rejected',            bg: 'rgba(255,101,132,0.1)', color: '#ff6584', border: 'rgba(255,101,132,0.3)' },
 }
 
@@ -136,7 +138,7 @@ function statusMessage(status) {
   switch (status) {
     case 'APPLIED':             return 'Your application is with the employer. Hang tight!'
     case 'RESUME_VIEWED':       return 'Great news — the employer has reviewed your resume.'
-    case 'SHORTLISTED':         return "You've been shortlisted! The employer is very interested."
+    case 'SHORTLISTED':         return "Your Resume has been shortlisted! The employer is very interested."
     case 'INTERVIEW_SCHEDULED': return 'Interview scheduled! Check your email for details.'
     case 'HIRED':               return 'Congratulations! You got the job! 🎉'
     case 'REJECTED':            return 'Unfortunately this application was not successful. Keep going!'
@@ -150,6 +152,22 @@ export default function MyApplications() {
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState('')
   const [expanded, setExpanded]         = useState(null)
+  const location = useLocation()
+  const cardRefs = useRef({})   // { applicationId: domNode }
+
+  // Auto-expand and scroll to card when navigated from a notification
+  useEffect(() => {
+    const hash = location.hash   // e.g. '#app-42'
+    if (!hash.startsWith('#app-')) return
+    const targetId = parseInt(hash.replace('#app-', ''), 10)
+    if (!targetId) return
+    setExpanded(targetId)
+    // Wait a tick for render, then scroll
+    setTimeout(() => {
+      const el = cardRefs.current[targetId]
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 150)
+  }, [location.hash, applications])
 
   if (!user) return <Navigate to="/login" replace />
   if (!isRole(user, 'jobseeker')) return <Navigate to="/dashboard" replace />
@@ -166,6 +184,8 @@ export default function MyApplications() {
     active:    applications.filter(a => !['HIRED', 'REJECTED'].includes(a.status)).length,
     shortlisted: applications.filter(a => a.status === 'SHORTLISTED').length,
     interviews:  applications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length,
+    HIRED:  applications.filter(a => a.status === 'HIRED').length,
+    REJECTED:  applications.filter(a => a.status === 'REJECTED').length,
   }
 
   return (
@@ -188,6 +208,8 @@ export default function MyApplications() {
                 { label: 'Active',            value: stats.active,      icon: 'bi-hourglass-split',   color: '#f7b731' },
                 { label: 'Shortlisted',       value: stats.shortlisted, icon: 'bi-star-fill',         color: '#43e97b' },
                 { label: 'Interview Pending', value: stats.interviews,  icon: 'bi-calendar-check-fill', color: '#00d2ff' },
+                { label: 'Hired',             value: stats.HIRED,       icon: 'bi-trophy-fill',         color: '#43e97b' },
+                { label: 'Rejected',          value: stats.REJECTED,    icon: 'bi-x-circle-fill',         color: '#ff6584' },
               ].map(s => (
                 <div key={s.label} style={{
                   background: 'var(--bg-card)', border: '1px solid var(--border)',
@@ -231,11 +253,12 @@ export default function MyApplications() {
                 const msg = statusMessage(app.status)
 
                 return (
-                  <div key={app.applicationId} className={`col-12 fade-in fade-in-delay-${Math.min(i + 1, 4)}`}>
+                  <div key={app.applicationId} ref={el => cardRefs.current[app.applicationId] = el} className={`col-12 fade-in fade-in-delay-${Math.min(i + 1, 4)}`}>
                     <div
                       className="application-card"
                       style={{
-                        border: `1px solid ${cfg.border}`,
+                        border: `1px solid ${expanded === app.applicationId && location.hash === '#app-' + app.applicationId ? 'rgba(108,99,255,0.6)' : cfg.border}`,
+                        boxShadow: expanded === app.applicationId && location.hash === '#app-' + app.applicationId ? '0 0 0 3px rgba(108,99,255,0.15)' : 'none',
                         transition: 'all 0.3s ease',
                         cursor: 'pointer',
                       }}
@@ -271,7 +294,7 @@ export default function MyApplications() {
                         {app.job?.salary && (
                           <span className="job-tag" style={{ color: 'var(--accent-3)', fontWeight: 600 }}>
                             <i className="bi bi-currency-rupee" />
-                            {Number(app.job.salary).toLocaleString()}  LPA
+                            {Number(app.job.salary).toLocaleString()} LPA
                           </span>
                         )}
                       </div>

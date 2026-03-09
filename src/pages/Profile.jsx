@@ -186,10 +186,10 @@ export default function Profile() {
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>PDF Document · Uploaded</div>
                     </div>
                     <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-                      <a href={cvUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary-jp" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
+                      <a href={cvUrl} target="_blank" rel="noopener noreferrer" className="btn-primary-jp" style={{ fontSize: '0.85rem', padding: '8px 16px' }}>
                         <i className="bi bi-eye"></i> View
                       </a>
-                      <button onClick={() => cvRef.current.click()} className="btn-secondary-jp" style={{ fontSize: '0.85rem', padding: '8px 16px' }} disabled={uploading === 'cv'}>
+                      <button onClick={() => cvRef.current.click()} className="btn-primary-jp" style={{ fontSize: '0.85rem', padding: '8px 16px' }} disabled={uploading === 'cv'}>
                         <i className="bi bi-arrow-repeat"></i> Replace
                       </button>
                     </div>

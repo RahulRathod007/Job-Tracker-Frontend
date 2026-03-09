@@ -146,7 +146,7 @@ export default function Home() {
               <Link to="/register" className="btn-primary-jp">
                 Create free account
               </Link>
-              <Link to="/jobs" className="btn-secondary-jp">
+              <Link to="/jobs" className="btn-secondary-jp" style={{color:'black', borderColor:'blue'}}>
                 Browse open roles
               </Link>
             </div>

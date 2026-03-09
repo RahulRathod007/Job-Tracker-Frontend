@@ -1,36 +1,48 @@
-import { createContext, useState, useContext } from 'react'
+import { createContext, useState, useEffect, useContext, useCallback } from 'react'
 
 const AuthContext = createContext()
+const USER_KEY    = 'jp_user'
 
-function loadUser() {
-  try {
-    const s = localStorage.getItem('jp_user')
-    return s ? JSON.parse(s) : null
-  } catch {
-    return null
-  }
-}
+const loadUser    = () => { try { return JSON.parse(localStorage.getItem(USER_KEY)) } catch { return null } }
+const persistUser = (u) => { if (u) localStorage.setItem(USER_KEY, JSON.stringify(u)); else localStorage.removeItem(USER_KEY) }
+const toInfo = (r) => ({ userId: r.userId, name: r.name, email: r.email, role: r.role, profilePicture: r.profilePicture, cvFilename: r.cvFilename })
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadUser)   
+  const [user, setUser] = useState(loadUser)
 
-  function loginUser(data) {
-    localStorage.setItem('jp_user', JSON.stringify(data))
-    setUser(data)
-  }
+  useEffect(() => {
+    const onExpired   = () => { ['jp_at','jp_rt',USER_KEY].forEach(k => localStorage.removeItem(k)); setUser(null) }
+    const onRefreshed = (e) => {
+      localStorage.setItem('jp_at', e.detail.accessToken)
+      localStorage.setItem('jp_rt', e.detail.refreshToken)
+      const info = { ...loadUser(), ...toInfo(e.detail) }
+      setUser(info); persistUser(info)
+    }
+    window.addEventListener('jp:session-expired',  onExpired)
+    window.addEventListener('jp:tokens-refreshed', onRefreshed)
+    return () => {
+      window.removeEventListener('jp:session-expired',  onExpired)
+      window.removeEventListener('jp:tokens-refreshed', onRefreshed)
+    }
+  }, [])
 
-  function updateUser(partial) {
-    setUser(prev => {
-      const next = { ...prev, ...partial }
-      localStorage.setItem('jp_user', JSON.stringify(next))
-      return next
-    })
-  }
+  // ← THIS is the key fix: saves tokens to localStorage on every login/register/google
+  const loginUser = useCallback((authResponse) => {
+    localStorage.setItem('jp_at', authResponse.accessToken)
+    localStorage.setItem('jp_rt', authResponse.refreshToken)
+    const info = toInfo(authResponse)
+    setUser(info)
+    persistUser(info)
+  }, [])
 
-  function logout() {
-    localStorage.removeItem('jp_user')
+  const updateUser = useCallback((partial) => {
+    setUser(prev => { const next = { ...prev, ...partial }; persistUser(next); return next })
+  }, [])
+
+  const logout = useCallback(() => {
+    ['jp_at','jp_rt',USER_KEY].forEach(k => localStorage.removeItem(k))
     setUser(null)
-  }
+  }, [])
 
   return (
     <AuthContext.Provider value={{ user, loginUser, updateUser, logout }}>

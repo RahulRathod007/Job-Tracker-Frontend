@@ -13,6 +13,7 @@ const STATUS_CONFIG = {
   RESUME_VIEWED:      { label: 'Resume Viewed',       bg: 'rgba(247,183,49,0.12)', color: '#f7b731', border: 'rgba(247,183,49,0.3)',  icon: 'bi-eye-fill' },
   SHORTLISTED:        { label: 'Shortlisted',         bg: 'rgba(67,233,123,0.12)', color: '#43e97b', border: 'rgba(67,233,123,0.3)',  icon: 'bi-star-fill' },
   INTERVIEW_SCHEDULED:{ label: 'Interview Scheduled', bg: 'rgba(0,210,255,0.12)',  color: '#00d2ff', border: 'rgba(0,210,255,0.3)',   icon: 'bi-calendar-check-fill' },
+  HIRED:               { label: 'Hired ',              bg: 'rgba(67,233,123,0.15)', color: '#43e97b', border: 'rgba(67,233,123,0.4)' },
   REJECTED:           { label: 'Rejected',            bg: 'rgba(255,101,132,0.1)', color: '#ff6584', border: 'rgba(255,101,132,0.3)', icon: 'bi-x-circle-fill' },
 }
 
@@ -20,6 +21,7 @@ const ACTIONS = [
   { status: 'RESUME_VIEWED',       label: 'Mark Resume Viewed',    icon: 'bi-eye',             color: '#f7b731' },
   { status: 'SHORTLISTED',         label: 'Shortlist',             icon: 'bi-star',            color: '#43e97b' },
   { status: 'INTERVIEW_SCHEDULED', label: 'Schedule Interview',    icon: 'bi-calendar-check',  color: '#00d2ff' },
+  { status : 'HIRED'  ,            label: 'Hired',               icon: 'bi-trophy-fill',           color: '#43e97b'  },
   { status: 'REJECTED',            label: 'Reject',                icon: 'bi-x-circle',        color: '#ff6584' },
 ]
 
